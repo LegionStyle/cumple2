@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piñata Digital de Cumpleaños</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #piñata {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 200px;
+            background: linear-gradient(45deg, 
+                #ff0000, #ff9900, #ffff00, 
+                #ff0000, #ff9900, #ffff00);
+            background-size: 400% 400%;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            animation: piñataShine 3s ease infinite;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        #piñata:before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            width: 40px;
+            height: 30px;
+            background: #8B4513;
+            border-radius: 50% 50% 0 0;
+        }
+
+        #piñata:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            width: 100%;
+            height: 20px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 50%;
+            filter: blur(5px);
+        }
+
+        .string {
+            position: absolute;
+            top: -80px;
+            width: 4px;
+            height: 80px;
+            background: repeating-linear-gradient(
+                to bottom,
+                #fff,
+                #fff 5px,
+                #ccc 5px,
+                #ccc 10px
+            );
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .candy {
+            position: absolute;
+            border-radius: 50%;
+            z-index: 5;
+            pointer-events: none;
+            font-size: 20px;
+        }
+
+        .message {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5em;
+            color: #fff;
+            text-shadow: 2px 2px 4px #000;
+            opacity: 0;
+            transition: opacity 1s, transform 1s;
+            text-align: center;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 10px;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+            text-align: center;
+            width: 100%;
+        }
+
+        @keyframes piñataShine {
+            0% { background-position: 0% 50% }
+            50% { background-position: 100% 50% }
+            100% { background-position: 0% 50% }
+        }
+
+        @keyframes swing {
+            0%, 100% { transform: translateX(-50%) rotate(-10deg) }
+            50% { transform: translateX(-50%) rotate(10deg) }
+        }
+
+        .swing {
+            animation: swing 1.5s ease-in-out infinite;
+        }
+
+        .broken {
+            animation: break 0.5s ease forwards;
+        }
+
+        @keyframes break {
+            0% { transform: translateX(-50%) scale(1) }
+            100% { transform: translateX(-50%) scale(0) }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="string"></div>
+        <div id="piñata" class="swing">¡GOLPÉAME!</div>
+        <div class="message" id="message">¡FELIZ CUMPLEAÑOS!</div>
+        <div class="instructions">Toca la piñata para romperla</div>
+    </div>
+
+    <audio id="breakSound" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-explosion-2759.mp3" preload="auto"></audio>
+    <audio id="candySound" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto"></audio>
+
+    <script>
+        const piñata = document.getElementById('piñata');
+        const message = document.getElementById('message');
+        const breakSound = document.getElementById('breakSound');
+        const candySound = document.getElementById('candySound');
+        const candies = ['🍬', '🍫', '🍭', '🍩', '🍪', '🎂', '🍰', '🧁', '🍎', '🍇'];
+        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3', '#33FFF3'];
+        let broken = false;
+
+        piñata.addEventListener('click', breakPiñata);
+        piñata.addEventListener('touchstart', breakPiñata);
+
+        function breakPiñata() {
+            if (broken) return;
+            broken = true;
+            
+            // Reproducir sonido de rotura
+            breakSound.play();
+            
+            // Animación de rotura
+            piñata.classList.remove('swing');
+            piñata.classList.add('broken');
+            
+            // Mostrar mensaje
+            setTimeout(() => {
+                message.style.opacity = '1';
+                message.style.transform = 'translateX(-50%) translateY(-20px)';
+            }, 500);
+            
+            // Crear dul
